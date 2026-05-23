@@ -1,0 +1,7 @@
+interface:
+  display_name: "Пояснительная бригада"
+  short_description: "Объясняет разработку простым языком"
+  default_prompt: "Use $explanation-crew to explain the current coding task in plain Russian for a strong technical beginner."
+
+policy:
+  allow_implicit_invocation: true

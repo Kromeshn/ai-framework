@@ -1,0 +1,9 @@
+# Скрытые системные / временные
+Thumbs.db
+.DS_Store
+*.tmp
+*.bak
+
+# IDE
+.vscode/
+.idea/

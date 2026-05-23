@@ -1,0 +1,4 @@
+interface:
+  display_name: "Doc Sync Review"
+  short_description: "Update docs by removing implementation drift"
+  default_prompt: "Use $doc-sync-review to audit and minimally update project documentation after a completed implementation cycle."
