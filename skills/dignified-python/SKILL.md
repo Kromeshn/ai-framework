@@ -38,7 +38,8 @@ description: Философия и правила написания Python-ко
 
 ## Operating Discipline
 
-These behavioral rules apply before and during every Python edit.
+These behavioral rules apply before and during every Python edit. They bias
+toward caution over speed — for trivial tasks, use judgment.
 
 ### 1. Think Before Coding
 - State assumptions explicitly before implementation.
@@ -53,6 +54,7 @@ These behavioral rules apply before and during every Python edit.
   "future-proofing".
 - Do not add error handling for impossible scenarios.
 - If a solution feels larger than the problem, simplify before continuing.
+- Test: would a senior engineer call this overcomplicated? If yes, simplify.
 
 ### 3. Surgical Changes
 - Touch only lines that trace directly to the user's request.
@@ -67,6 +69,9 @@ These behavioral rules apply before and during every Python edit.
 
 ### 4. Goal-Driven Execution
 - Define success criteria before implementation.
+- Transform vague tasks into verifiable goals: "Add validation" -> "write tests
+  for invalid inputs, then make them pass"; "Refactor X" -> "tests pass before
+  and after".
 - For multi-step work, state a brief plan:
   `1. [Step] -> verify: [check]`.
 - For bugs, prefer a test or focused reproduction that fails before the fix and

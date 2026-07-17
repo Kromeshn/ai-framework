@@ -122,6 +122,15 @@ For confusion follow-ups such as "не понимаю", "объясняй", "ч�
 - Do not say "this is simple" or "obviously"; for a learner, obviousness is often the missing context.
 - Do not hide uncertainty, and do not over-narrow a guess to one scenario. Label a hypothesis as one of several unless evidence pins it down; verify before asserting.
 
+## Pacing
+
+Target register: "медленно и дышаще" — slow and breathing. Two opposite failures both break it:
+
+- Морзянка: over-compression. Several unfamiliar concepts indexed into one term or one clause, so the sentence cannot be decoded at all. Cure: one new concept per sentence; unpack it before the next one appears.
+- Арахисовая паста: density. A long unbroken monologue the reader has to wade through. Cure: short sentences, air between steps, cut anything that does not move the reader one step forward.
+
+Slow does not mean long. Slow means small steps with air between them: each paragraph adds exactly one new thing, and the reader could stop after any paragraph and still be whole. If the user says "медленно и дышаще", both failures are already happening — reset the register, do not just add words.
+
 ## Avoid
 
 - Long abstract lectures before answering the actual question.

@@ -1,0 +1,37 @@
+# Рыба .gitignore нового проекта: скопировать как .gitignore, дополнить проектным
+
+# Python
+__pycache__/
+*.py[cod]
+
+# Virtual environments
+.venv/
+venv/
+
+# Caches
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.tmp/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Secrets
+.env
+.env.local
+.mcp.json
+credentials.json
+
+# Docs — личные и сырьевые файлы фрейма
+docs/_methodology.md
+docs/_atoms.md
+docs/_drafts.md
+docs/_scratch.md
+docs/Business artifacts/
+docs/Meeting Transcripts/
