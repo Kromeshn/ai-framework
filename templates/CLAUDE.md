@@ -40,6 +40,8 @@
 
 Если мы в рамках цикла изменения, выполняй только явно запрошенный этап и не переходи к другому автоматически, если не сказано обратного: Sensemaking, Human Plan, Human Plan Review, Agent Plan, Implementation, Implementation Review, Live Validation, Doc Sync, Commit + Push.
 
+В сенсмейкинге и анализе предлагать лучший на свой взгляд вариант с аргументацией.
+
 ---
 
 ## Правила работы с артефактами
