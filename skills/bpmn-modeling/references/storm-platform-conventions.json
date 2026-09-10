@@ -1,0 +1,36 @@
+{
+  "pmaConvention": {
+    "RULE": "Diagrams must follow the PMA modeling convention (public BPMN style guide authored by the Stormbpmn founder).",
+    "taskNaming": "Task names must be infinitive Russian verb + noun, ≤200 chars. Right: 'Обработать заявку', 'Согласовать договор'. Wrong: 'Обработка заявки' (noun form), 'Заявка' (no verb).",
+    "gatewayNaming": "Gateway names are questions ending with '?'. Branch labels are short answers: Да / Нет / Одобрено / Отклонено / На доработку.",
+    "approvalPattern": "Approval gateways should have three branches (Одобрено / Отклонено / На доработку), with 'На доработку' looping back to the preceding task, and a default flow set.",
+    "rolesAndLanes": "Responsibility is assigned via Roles (set_assignee) — a Role is different from a lane. Lanes ARE supported as a structural grouping: create them via edit_diagram add_lane / assign_to_lane / rename_lane / delete_lane, then relayout_diagram.",
+    "notCreatableViaMcp": "Boundary events (timer/error attached to a task), sub-processes, call activities, multi-pool diagrams, collapsed pools and message flows are supported by the platform IN THE UI EDITOR but are NOT creatable through MCP tools. When a user asks for them, say 'available via the UI editor, not via MCP', not 'not supported'.",
+    "hardBans": [
+      "scriptTask (not in the MCP allowlist; PMA also discourages it)",
+      "Transaction Subprocess, Ad-Hoc Subprocess",
+      "Link Event, Signal Event, Cancel Event",
+      "Multiple Event, Parallel Multiple Event",
+      "Complex Gateway",
+      "Conditional Flow (hides the decision; use a gateway instead)",
+      "Choreography and Conversation diagrams"
+    ]
+  },
+  "messageEvents": {
+    "RULE": "NEVER use sendTask, receiveTask, messageStartEvent, messageEndEvent, or any message-related elements for modeling notifications, emails, alerts, or any internal task-like activity. These BPMN elements are STRICTLY for inter-process communication (between two separate processes/pools), which StormBPMN does NOT model.",
+    "wrong": "User says 'send notification email' → DO NOT use sendTask or messageEvent. These are reserved for cross-process choreography.",
+    "right": "Use a regular userTask or serviceTask named 'Отправить уведомление' / 'Send notification'. If automated, change_element_type to serviceTask. Link the email/notification system as an asset via link_asset (direction=OUTGOING).",
+    "examples": [
+      "Wrong: sendTask 'Уведомить клиента о статусе'",
+      "Right: serviceTask 'Уведомить клиента о статусе' + link_asset 'Email Service' direction=OUTGOING",
+      "Wrong: messageEndEvent 'Уведомление отправлено'",
+      "Right: endEvent 'Уведомление отправлено'"
+    ]
+  },
+  "lanes": {
+    "RULE": "Lanes (swim lanes / дорожки) ARE supported as a structural grouping of nodes. Create them via edit_diagram (add_lane / assign_to_lane / rename_lane / delete_lane), then relayout_diagram for a lane-aware layout.",
+    "rolesVsLanes": "Lanes are SEPARATE from responsibility. Responsibility is assigned via Roles (set_assignee), which link to real people through the org chart and power analytics (workload, cost, automation rate). A task can sit in a lane AND carry a Role — different concepts.",
+    "howToAddLane": "Use add_lane to create a lane, assign_to_lane to place tasks into it, rename_lane / delete_lane to adjust, and relayout_diagram to lay the diagram out with lanes.",
+    "howToAssignRole": "Use set_assignee to link a role to a task. Use find_assignees to see available roles. Use get_element_details to see which role is assigned to a specific task."
+  }
+}

@@ -1,0 +1,246 @@
+{
+  "overview": "StormBPMN provides a full suite of tools for AI-assisted BPMN diagram creation, editing, and enrichment. The AI can build a process from scratch, refine it iteratively based on quality checks, and enrich it with roles, IT systems, descriptions, and durations.",
+  "CRITICAL_RULES": [
+    "ALL diagrams MUST follow the PMA modeling convention — public BPMN style guide authored by the Stormbpmn founder. Key points: infinitive Russian verb + noun in task names; responsibility via Roles (set_assignee), with lanes as an optional separate grouping (add_lane); userTask/serviceTask + link_asset for notifications; three-branch approval gateways with default flow set.",
+    "Lanes (дорожки/lanes) ARE supported as a structural grouping — create them via edit_diagram add_lane / assign_to_lane / rename_lane / delete_lane, then relayout_diagram. Responsibility is still assigned via Roles (set_assignee), which is SEPARATE from lanes: a task can sit in a lane and also carry a Role.",
+    "NEVER use sendTask, receiveTask, or message events (messageStartEvent, messageEndEvent, messageIntermediateCatchEvent, messageIntermediateThrowEvent) for notifications, emails, alerts, or any internal task. These elements are STRICTLY for inter-process communication between separate processes/pools. For 'send notification' / 'send email' tasks: use a regular userTask or serviceTask, and link the email/notification system as an asset via link_asset (direction=OUTGOING).",
+    "Boundary events, sub-processes, call activities, multi-pool diagrams, collapsed pools, and message flows are NOT creatable via MCP edit tools. The platform supports them in the UI editor. When the user asks for them, say 'available via the UI editor, not via MCP' — NOT 'not supported'.",
+    "PMA hard bans (never create via MCP, discourage in reviews): scriptTask, Transaction Subprocess, Ad-Hoc Subprocess, Link Event, Signal Event, Cancel Event, Multiple Event, Parallel Multiple Event, Complex Gateway, Conditional Flow, Choreography/Conversation diagrams.",
+    "Task naming — infinitive Russian verb + noun, ≤200 chars. Right: 'Обработать заявку'. Wrong: 'Обработка заявки' (noun form).",
+    "Gateway naming — question form ending with '?'. Branch labels are short answers (Да/Нет/Одобрено/Отклонено/На доработку). Every diverging exclusive/inclusive gateway must have a default flow set via set_default_flow.",
+    "Approval gateways should have three branches (Одобрено / Отклонено / На доработку). 'На доработку' loops back to the preceding task.",
+    "When suggesting improvements, only suggest what CAN be done with the available tools."
+  ],
+  "element_patterns": {
+    "description": "Common business cases mapped to BPMN element types. Use these as a lookup table when picking the right elementType for add_element.",
+    "manual_work_by_person": [
+      {
+        "case": "Проверить заявку",
+        "type": "userTask"
+      },
+      {
+        "case": "Позвонить клиенту",
+        "type": "userTask",
+        "enrichment": "link_asset(CRM/Phone, BIDIRECTIONAL)"
+      },
+      {
+        "case": "Отправить счёт по email",
+        "type": "userTask",
+        "enrichment": "link_asset(Email System, OUTGOING)"
+      },
+      {
+        "case": "Выставить счёт в 1С",
+        "type": "userTask",
+        "enrichment": "link_asset(1С, OUTGOING)"
+      },
+      {
+        "case": "Согласовать договор",
+        "type": "userTask"
+      }
+    ],
+    "automated_system_action": [
+      {
+        "case": "Списать средства с карты",
+        "type": "serviceTask",
+        "enrichment": "link_asset(Payment Gateway, OUTGOING)"
+      },
+      {
+        "case": "Записать в БД",
+        "type": "serviceTask",
+        "enrichment": "link_asset(Database, OUTGOING)"
+      },
+      {
+        "case": "Отправить SMS автоматически",
+        "type": "serviceTask",
+        "enrichment": "link_asset(SMS Service, OUTGOING)"
+      },
+      {
+        "case": "Рассчитать скоринг",
+        "type": "serviceTask"
+      }
+    ],
+    "decision_points": [
+      {
+        "case": "Заявка одобрена?",
+        "type": "exclusiveGateway",
+        "note": "One branch executes based on a condition."
+      },
+      {
+        "case": "Параллельно: проверка + КЦ",
+        "type": "parallelGateway",
+        "note": "All branches execute in parallel."
+      }
+    ],
+    "wait_states": [
+      {
+        "case": "Ожидание 3 дня",
+        "type": "intermediateCatchEvent",
+        "note": "Timer — name must contain the duration or schedule."
+      },
+      {
+        "case": "Ожидание ответа клиента",
+        "type": "intermediateCatchEvent",
+        "note": "Message — only legitimate if the other side is modeled as a collapsed pool in a cross-process scenario. In StormBPMN this is rare — prefer a userTask 'Дождаться ответа клиента'."
+      }
+    ],
+    "process_endings": [
+      {
+        "case": "Заявка принята",
+        "type": "endEvent"
+      },
+      {
+        "case": "Отказ клиента",
+        "type": "endEvent"
+      }
+    ],
+    "approval_pattern": {
+      "description": "Document approval pattern (PMA 11.10). Always three branches.",
+      "gateway": "exclusiveGateway, name like 'Заявка одобрена?'",
+      "branches": [
+        {
+          "label": "Одобрено",
+          "target": "next step",
+          "default": true
+        },
+        {
+          "label": "Отклонено",
+          "target": "end event or rejection handler"
+        },
+        {
+          "label": "На доработку",
+          "target": "loop back to preceding task"
+        }
+      ]
+    }
+  },
+  "scenarios": [
+    {
+      "name": "Model a new process from a natural-language description",
+      "description": "User describes a business process in plain language. Follow this recipe BEFORE any tool call to produce a PMA-compliant diagram.",
+      "steps": [
+        "1. Identify the skeleton: owner (pool name), start trigger (manual / scheduled / external), successful end, alternative ends.",
+        "2. List activities in order. For each: infinitive Russian verb + noun name; pick type from element_patterns (userTask for manual, serviceTask for automated); identify assignee (set_assignee later); identify assets (link_asset with direction).",
+        "3. Identify decisions. For each: question name with '?'; list every branch with its label; pick the default flow. For approval steps use three branches (Одобрено / Отклонено / На доработку).",
+        "4. Hard-ban audit before emitting tool calls: no scriptTask, no sendTask/receiveTask/messageEvent, no signal/cancel/transaction/adHoc/complexGateway/conditionalFlow, no boundary events / sub-processes / call activities / multi-pool (use UI for the last four).",
+        "5. Token flow sanity check: every path must reach an End Event; every activity has exactly 1 in and 1 out; gateway is either diverging OR merging, not both.",
+        "6. create_diagram → edit_diagram dryRun=true → read lint → edit_diagram dryRun=false → relayout_diagram.",
+        "7. Enrichment pass: set_assignees (ONE call for all tasks), set_element_descriptions (one call, with durations), link_assets (one call) for systems/documents, update_diagram_description."
+      ]
+    },
+    {
+      "name": "Create a process from scratch",
+      "description": "User describes a business process in natural language. AI creates a BPMN diagram with all elements, flows, gateways, and enrichment.",
+      "steps": [
+        "1. create_diagram — creates an empty diagram with a pool and start event",
+        "2. edit_diagram — batch-add all elements using ref/placeholder system. Start from StartEvent_1, chain elements with afterElementId, add gateways for decisions, use flowName for branch labels (Да/Нет).",
+        "3. relayout_diagram — auto-arrange all elements",
+        "4. Quality loop: check qualityScore, fix lintErrors with another edit_diagram, relayout again. Repeat 2-3 times until score >= 8.0.",
+        "5. set_default_flow on each exclusive/inclusive gateway",
+        "6. Enrich: set_assignees for all tasks in one call, set_element_descriptions with durations, link_assets (one call) for IT systems/documents",
+        "7. update_diagram_description — set diagram-level description",
+        "8. rename_element on pool (Participant) to set the process owner/department"
+      ]
+    },
+    {
+      "name": "Improve an existing diagram",
+      "description": "User has an existing diagram and wants to add/modify elements.",
+      "steps": [
+        "1. get_diagram_flow — understand current structure (nodes, edges, pools)",
+        "2. edit_diagram — add/delete/rename elements, add/delete flows",
+        "3. change_element_type — refine element types (task→userTask, etc.)",
+        "4. relayout_diagram — fix positioning after changes",
+        "5. Quality loop as above"
+      ]
+    },
+    {
+      "name": "Enrich a diagram with business context",
+      "description": "Diagram structure exists, add roles, systems, descriptions, durations.",
+      "steps": [
+        "1. get_diagram_flow — see current state",
+        "2. For each task: get_element_details to see what's already assigned",
+        "3. find_assignees — find available roles, set_assignees to assign them all in one call",
+        "4. find_assets — find IT systems/documents, link_assets with direction (one call)",
+        "5. set_element_descriptions — descriptions and planned durations (seconds) for all tasks in one call",
+        "6. update_diagram_description — describe the overall process"
+      ]
+    },
+    {
+      "name": "Audit diagram quality",
+      "description": "Check a diagram for BPMN best practice violations and fix them.",
+      "steps": [
+        "1. get_diagram_flow — understand structure",
+        "2. relayout_diagram — triggers quality scoring, returns lintErrors/lintWarnings/lintInfos",
+        "3. Common lint issues and fixes:",
+        "   - 'Не соединено' (not connected) → add missing sequence flows with add_sequence_flow",
+        "   - 'Нет входящих/исходящих потоков' → element is orphaned, connect it or delete it",
+        "   - 'Не задан поток по умолчанию' → set_default_flow on the gateway",
+        "   - 'Исходящие потоки не подписаны' → rename flows using rename_element on the flow",
+        "   - 'Не используйте одну развилку' → gateway with only 1 outgoing flow is useless, remove it",
+        "4. After fixes: relayout_diagram again, verify score improved"
+      ]
+    },
+    {
+      "name": "Analyze process for optimization",
+      "description": "Review a process for bottlenecks, automation opportunities, workload balance.",
+      "steps": [
+        "1. get_diagram_flow — full graph with edges, roles, and assets",
+        "2. get_element_details for key tasks — check duration, assignee, assets",
+        "3. Identify: manual tasks that could be serviceTask (automation candidates), tasks with long duration (bottlenecks), roles with many assignments (overloaded)",
+        "4. Suggest changes: change_element_type task→serviceTask, redistribute roles, add parallel gateways to parallelize independent steps"
+      ]
+    }
+  ],
+  "editOperations": {
+    "structural": [
+      "add_element — add task, gateway, event (with afterElementId or targetFlowId)",
+      "delete_element — remove element (auto-reconnects if 1-in-1-out)",
+      "add_sequence_flow — connect two elements",
+      "delete_sequence_flow — remove a flow",
+      "change_element_type — convert element type (e.g., task→userTask)",
+      "set_default_flow — set gateway default branch",
+      "rename_element — rename any element, flow, or pool"
+    ],
+    "enrichment": [
+      "set_assignee / unset_assignee — assign a role to one task; set_assignees — many tasks in one call",
+      "set_element_description — description and planned duration (seconds) of one element; set_element_descriptions — many elements in one call",
+      "Batch tools report PARTIAL success: root success=true means at least one item applied. Always read results[] and re-send ONLY items with applied=false (fixed) — never the whole batch again.",
+      "link_asset / unlink_asset — connect IT system/document with direction (INCOMING/OUTGOING/BIDIRECTIONAL/INTERNAL); link_assets — many elements in one call",
+      "update_diagram_description — set diagram-level description"
+    ],
+    "layout": [
+      "relayout_diagram — auto-layout + quality scoring",
+      "create_diagram — new diagram with starter template"
+    ]
+  },
+  "batchTips": [
+    "Use ref/placeholder system to reference newly-created elements within one edit_diagram call",
+    "Example: {\"ref\":\"gw\"} on add_element, then {\"afterElementId\":\"$gw\"} in the next operation",
+    "Batch as many operations as possible in one call — it's atomic (all-or-nothing)",
+    "operationResults in the response tells you which IDs were created by which operation"
+  ],
+  "qualityScoring": {
+    "scale": "0.0 to 10.0",
+    "target": "Aim for >= 8.0",
+    "levels": [
+      "ERROR — must fix (not connected, missing default flow)",
+      "WARNING — should fix (unnamed gateway branches, single fork)",
+      "INFO — nice to fix (many incoming threads on end event)"
+    ],
+    "workflow": "edit_diagram → relayout_diagram → check score → fix errors → repeat"
+  },
+  "dryRunStrategy": {
+    "description": "Use dryRun=true to preview changes before committing. The response includes the full lint report (lintErrors, lintWarnings, lintInfos) and qualityScore WITHOUT saving anything. This is free and instant.",
+    "when_to_use": [
+      "Complex batches with many operations — dry-run first, check lint, fix issues, then run for real",
+      "When unsure about the result — preview before committing",
+      "After building a large diagram from scratch — dry-run the final edit_diagram, read lint errors, fix them in the operations array, THEN run without dryRun"
+    ],
+    "recommended_workflow": [
+      "1. edit_diagram with dryRun=true — build the diagram",
+      "2. Read lintErrors from the response — are there issues?",
+      "3. If yes: fix the operations (add missing flows, set default flows, name branches), dry-run again until lintErrors is empty or minimal",
+      "4. When satisfied: run edit_diagram with dryRun=false to save",
+      "5. relayout_diagram to finalize positioning"
+    ]
+  }
+}
