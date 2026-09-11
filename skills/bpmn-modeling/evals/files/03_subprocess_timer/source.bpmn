@@ -1,0 +1,149 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="C3_Definitions" targetNamespace="https://example.org/bpmn-layout-fixtures/c3" name="Подготовить заключение с напоминанием о сроке" modeler:executionPlatform="Camunda Cloud">
+  <bpmn:message id="C3_ResultMessage" name="Итоговое заключение по комплекту материалов"/>
+  <bpmn:process id="C3_Process" name="Рассмотреть учебный комплект и передать заключение" isExecutable="false">
+    <bpmn:documentation>Встроенный подпроцесс рассматривает комплект. Однократный непрерывающий таймер через двое суток создаёт дополнительную ветку уточнения срока. Родитель продолжается после завершения всех активных веток подпроцесса.</bpmn:documentation>
+    <bpmn:startEvent id="C3_Start" name="Получен комплект материалов для учебного заключения">
+      <bpmn:outgoing>C3_F01</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:subProcess id="C3_ReviewSub" name="Подготовить проверенное заключение по комплекту материалов">
+      <bpmn:incoming>C3_F01</bpmn:incoming>
+      <bpmn:outgoing>C3_F02</bpmn:outgoing>
+      <bpmn:laneSet id="C3_LaneSet">
+        <bpmn:lane id="C3_Lane_Documents" name="Документы"/>
+        <bpmn:lane id="C3_Lane_Coordinator" name="Координатор">
+          <bpmn:flowNodeRef>C3_SubStart</bpmn:flowNodeRef>
+          <bpmn:flowNodeRef>C3_Prepare</bpmn:flowNodeRef>
+          <bpmn:flowNodeRef>C3_Clarify</bpmn:flowNodeRef>
+          <bpmn:flowNodeRef>C3_ReminderEnd</bpmn:flowNodeRef>
+        </bpmn:lane>
+        <bpmn:lane id="C3_Lane_Expert" name="Эксперт">
+          <bpmn:flowNodeRef>C3_Assess</bpmn:flowNodeRef>
+          <bpmn:flowNodeRef>C3_Timer</bpmn:flowNodeRef>
+        </bpmn:lane>
+        <bpmn:lane id="C3_Lane_Reviewer" name="Контролёр">
+          <bpmn:flowNodeRef>C3_Verify</bpmn:flowNodeRef>
+          <bpmn:flowNodeRef>C3_SubEnd</bpmn:flowNodeRef>
+        </bpmn:lane>
+      </bpmn:laneSet>
+      <bpmn:startEvent id="C3_SubStart" name="Начато рассмотрение комплекта">
+        <bpmn:outgoing>C3_S01</bpmn:outgoing>
+      </bpmn:startEvent>
+      <bpmn:task id="C3_Prepare" name="Подготовить комплект материалов к рассмотрению и проверить наличие необходимых пояснений">
+        <bpmn:incoming>C3_S01</bpmn:incoming>
+        <bpmn:outgoing>C3_S02</bpmn:outgoing>
+        <bpmn:ioSpecification id="C3_Prepare_IO">
+          <bpmn:dataOutput id="C3_Prepare_Output_1" name="Записать Materials"/>
+          <bpmn:inputSet id="C3_Prepare_InputSet"/>
+          <bpmn:outputSet id="C3_Prepare_OutputSet">
+            <bpmn:dataOutputRefs>C3_Prepare_Output_1</bpmn:dataOutputRefs>
+          </bpmn:outputSet>
+        </bpmn:ioSpecification>
+        <bpmn:dataOutputAssociation id="C3_Prepare_Write_1">
+          <bpmn:sourceRef>C3_Prepare_Output_1</bpmn:sourceRef>
+          <bpmn:targetRef>C3_Materials</bpmn:targetRef>
+        </bpmn:dataOutputAssociation>
+      </bpmn:task>
+      <bpmn:task id="C3_Assess" name="Изучить материалы и подготовить рабочее заключение с обоснованием выводов и ограничений">
+        <bpmn:incoming>C3_S02</bpmn:incoming>
+        <bpmn:outgoing>C3_S03</bpmn:outgoing>
+        <bpmn:ioSpecification id="C3_Assess_IO">
+          <bpmn:dataInput id="C3_Assess_Input_1" name="Прочитать Materials"/>
+          <bpmn:dataOutput id="C3_Assess_Output_1" name="Записать Draft"/>
+          <bpmn:inputSet id="C3_Assess_InputSet">
+            <bpmn:dataInputRefs>C3_Assess_Input_1</bpmn:dataInputRefs>
+          </bpmn:inputSet>
+          <bpmn:outputSet id="C3_Assess_OutputSet">
+            <bpmn:dataOutputRefs>C3_Assess_Output_1</bpmn:dataOutputRefs>
+          </bpmn:outputSet>
+        </bpmn:ioSpecification>
+        <bpmn:dataInputAssociation id="C3_Assess_Read_1">
+          <bpmn:sourceRef>C3_Materials</bpmn:sourceRef>
+          <bpmn:targetRef>C3_Assess_Input_1</bpmn:targetRef>
+        </bpmn:dataInputAssociation>
+        <bpmn:dataOutputAssociation id="C3_Assess_Write_1">
+          <bpmn:sourceRef>C3_Assess_Output_1</bpmn:sourceRef>
+          <bpmn:targetRef>C3_Draft</bpmn:targetRef>
+        </bpmn:dataOutputAssociation>
+      </bpmn:task>
+      <bpmn:boundaryEvent id="C3_Timer" name="Прошло 2 суток с начала изучения" attachedToRef="C3_Assess" cancelActivity="false">
+        <bpmn:outgoing>C3_T01</bpmn:outgoing>
+        <bpmn:timerEventDefinition id="C3_TimerDefinition">
+          <bpmn:timeDuration xsi:type="bpmn:tFormalExpression">P2D</bpmn:timeDuration>
+        </bpmn:timerEventDefinition>
+      </bpmn:boundaryEvent>
+      <bpmn:task id="C3_Clarify" name="Уточнить у эксперта ожидаемый срок завершения и зарегистрировать ответ">
+        <bpmn:incoming>C3_T01</bpmn:incoming>
+        <bpmn:outgoing>C3_T02</bpmn:outgoing>
+      </bpmn:task>
+      <bpmn:endEvent id="C3_ReminderEnd" name="Ожидаемый срок завершения зарегистрирован">
+        <bpmn:incoming>C3_T02</bpmn:incoming>
+      </bpmn:endEvent>
+      <bpmn:task id="C3_Verify" name="Проверить аргументацию рабочего заключения и оформить итоговое заключение по материалам">
+        <bpmn:incoming>C3_S03</bpmn:incoming>
+        <bpmn:outgoing>C3_S04</bpmn:outgoing>
+        <bpmn:ioSpecification id="C3_Verify_IO">
+          <bpmn:dataInput id="C3_Verify_Input_1" name="Прочитать Materials"/>
+          <bpmn:dataInput id="C3_Verify_Input_2" name="Прочитать Draft"/>
+          <bpmn:dataOutput id="C3_Verify_Output_1" name="Записать FinalReport"/>
+          <bpmn:inputSet id="C3_Verify_InputSet">
+            <bpmn:dataInputRefs>C3_Verify_Input_1</bpmn:dataInputRefs>
+            <bpmn:dataInputRefs>C3_Verify_Input_2</bpmn:dataInputRefs>
+          </bpmn:inputSet>
+          <bpmn:outputSet id="C3_Verify_OutputSet">
+            <bpmn:dataOutputRefs>C3_Verify_Output_1</bpmn:dataOutputRefs>
+          </bpmn:outputSet>
+        </bpmn:ioSpecification>
+        <bpmn:dataInputAssociation id="C3_Verify_Read_1">
+          <bpmn:sourceRef>C3_Materials</bpmn:sourceRef>
+          <bpmn:targetRef>C3_Verify_Input_1</bpmn:targetRef>
+        </bpmn:dataInputAssociation>
+        <bpmn:dataInputAssociation id="C3_Verify_Read_2">
+          <bpmn:sourceRef>C3_Draft</bpmn:sourceRef>
+          <bpmn:targetRef>C3_Verify_Input_2</bpmn:targetRef>
+        </bpmn:dataInputAssociation>
+        <bpmn:dataOutputAssociation id="C3_Verify_Write_1">
+          <bpmn:sourceRef>C3_Verify_Output_1</bpmn:sourceRef>
+          <bpmn:targetRef>C3_FinalReport</bpmn:targetRef>
+        </bpmn:dataOutputAssociation>
+      </bpmn:task>
+      <bpmn:endEvent id="C3_SubEnd" name="Итоговое заключение подготовлено">
+        <bpmn:incoming>C3_S04</bpmn:incoming>
+      </bpmn:endEvent>
+      <bpmn:sequenceFlow id="C3_S01" sourceRef="C3_SubStart" targetRef="C3_Prepare"/>
+      <bpmn:sequenceFlow id="C3_S02" sourceRef="C3_Prepare" targetRef="C3_Assess"/>
+      <bpmn:sequenceFlow id="C3_S03" sourceRef="C3_Assess" targetRef="C3_Verify"/>
+      <bpmn:sequenceFlow id="C3_S04" sourceRef="C3_Verify" targetRef="C3_SubEnd"/>
+      <bpmn:sequenceFlow id="C3_T01" sourceRef="C3_Timer" targetRef="C3_Clarify"/>
+      <bpmn:sequenceFlow id="C3_T02" sourceRef="C3_Clarify" targetRef="C3_ReminderEnd"/>
+      <bpmn:dataObject id="C3_Materials_Object"/>
+      <bpmn:dataObjectReference id="C3_Materials" name="Комплект материалов и пояснений для подготовки учебного заключения" dataObjectRef="C3_Materials_Object"/>
+      <bpmn:dataObject id="C3_Draft_Object"/>
+      <bpmn:dataObjectReference id="C3_Draft" name="Рабочее заключение эксперта с обоснованием выводов и ограничений" dataObjectRef="C3_Draft_Object"/>
+      <bpmn:dataObject id="C3_FinalReport_Object"/>
+      <bpmn:dataObjectReference id="C3_FinalReport" name="Итоговое заключение после проверки аргументации" dataObjectRef="C3_FinalReport_Object"/>
+    </bpmn:subProcess>
+    <bpmn:task id="C3_Send" name="Передать итоговое заключение внешнему получателю после завершения внутреннего рассмотрения">
+      <bpmn:incoming>C3_F02</bpmn:incoming>
+      <bpmn:outgoing>C3_F03</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:endEvent id="C3_End" name="Итоговое заключение передано внешнему получателю">
+      <bpmn:incoming>C3_F03</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="C3_F01" sourceRef="C3_Start" targetRef="C3_ReviewSub"/>
+    <bpmn:sequenceFlow id="C3_F02" sourceRef="C3_ReviewSub" targetRef="C3_Send"/>
+    <bpmn:sequenceFlow id="C3_F03" sourceRef="C3_Send" targetRef="C3_End"/>
+  </bpmn:process>
+  <bpmn:collaboration id="C3_Collaboration">
+    <bpmn:participant id="C3_Pool" name="Рассмотрение учебного комплекта" processRef="C3_Process"/>
+    <bpmn:participant id="C3_ExternalPool" name="Внешний получатель заключения"/>
+    <bpmn:messageFlow id="C3_MessageFlow_Result" name="Итоговое заключение по комплекту материалов" sourceRef="C3_Send" targetRef="C3_ExternalPool" messageRef="C3_ResultMessage"/>
+  </bpmn:collaboration>
+  <bpmndi:BPMNDiagram id="C3_ExpansionHintDiagram">
+    <bpmndi:BPMNPlane id="C3_ExpansionHintPlane" bpmnElement="C3_Collaboration">
+      <bpmndi:BPMNShape id="C3_ExpansionHintShape" bpmnElement="C3_ReviewSub" isExpanded="true">
+        <dc:Bounds x="0" y="0" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

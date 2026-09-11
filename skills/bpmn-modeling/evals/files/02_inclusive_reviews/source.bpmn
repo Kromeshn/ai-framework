@@ -1,0 +1,286 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="C2_Definitions" targetNamespace="https://example.org/bpmn-layout-fixtures/c2" name="Выполнить применимые проверки пакета и устранить замечания" modeler:executionPlatform="Camunda Cloud">
+  <bpmn:process id="C2_Process" name="Проверить учебный пакет по выбранным направлениям" isExecutable="false">
+    <bpmn:documentation>Входной перечень проверок непустой. Четыре логических признака независимы и не изменяются при повторной проверке. Допустимы все 15 непустых комбинаций. Включающий шлюз ожидания синхронизирует только выбранные ветки.</bpmn:documentation>
+    <bpmn:laneSet id="C2_LaneSet">
+      <bpmn:lane id="C2_Lane_Documents" name="Документы"/>
+      <bpmn:lane id="C2_Lane_Coordinator" name="Координатор">
+        <bpmn:flowNodeRef>C2_Start</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>C2_Prepare</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>C2_MergeRound</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>C2_Fork</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>C2_Join</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>C2_Joint</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>C2_Issues</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>C2_Revise</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>C2_Register</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>C2_End</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="C2_Lane_Economics" name="Эксперт по расчётам">
+        <bpmn:flowNodeRef>C2_Economics</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="C2_Lane_Technology" name="Технический эксперт">
+        <bpmn:flowNodeRef>C2_Technology</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="C2_Lane_Operations" name="Эксперт по исполнению">
+        <bpmn:flowNodeRef>C2_Operations</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="C2_Lane_Quality" name="Эксперт по качеству">
+        <bpmn:flowNodeRef>C2_Quality</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="C2_Start" name="Получен учебный пакет с непустым перечнем проверок">
+      <bpmn:outgoing>C2_F01</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:task id="C2_Prepare" name="Подготовить комплект материалов и зафиксировать применимые направления независимой проверки">
+      <bpmn:incoming>C2_F01</bpmn:incoming>
+      <bpmn:outgoing>C2_F02</bpmn:outgoing>
+      <bpmn:ioSpecification id="C2_Prepare_IO">
+        <bpmn:dataOutput id="C2_Prepare_Output_1" name="Записать Package"/>
+        <bpmn:inputSet id="C2_Prepare_InputSet"/>
+        <bpmn:outputSet id="C2_Prepare_OutputSet">
+          <bpmn:dataOutputRefs>C2_Prepare_Output_1</bpmn:dataOutputRefs>
+        </bpmn:outputSet>
+      </bpmn:ioSpecification>
+      <bpmn:dataOutputAssociation id="C2_Prepare_Write_1">
+        <bpmn:sourceRef>C2_Prepare_Output_1</bpmn:sourceRef>
+        <bpmn:targetRef>C2_Package</bpmn:targetRef>
+      </bpmn:dataOutputAssociation>
+    </bpmn:task>
+    <bpmn:exclusiveGateway id="C2_MergeRound" name="Комплект готов к очередной проверке?" gatewayDirection="Converging">
+      <bpmn:incoming>C2_F02</bpmn:incoming>
+      <bpmn:incoming>C2_F16</bpmn:incoming>
+      <bpmn:outgoing>C2_F03</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:inclusiveGateway id="C2_Fork" name="Какие направления проверки применимы?" gatewayDirection="Diverging">
+      <bpmn:incoming>C2_F03</bpmn:incoming>
+      <bpmn:outgoing>C2_F04</bpmn:outgoing>
+      <bpmn:outgoing>C2_F05</bpmn:outgoing>
+      <bpmn:outgoing>C2_F06</bpmn:outgoing>
+      <bpmn:outgoing>C2_F07</bpmn:outgoing>
+    </bpmn:inclusiveGateway>
+    <bpmn:task id="C2_Economics" name="Проверить исходные расчёты и обоснованность ожидаемых затрат и результатов">
+      <bpmn:incoming>C2_F04</bpmn:incoming>
+      <bpmn:outgoing>C2_F08</bpmn:outgoing>
+      <bpmn:ioSpecification id="C2_Economics_IO">
+        <bpmn:dataInput id="C2_Economics_Input_1" name="Прочитать Package"/>
+        <bpmn:dataOutput id="C2_Economics_Output_1" name="Записать EconomicReport"/>
+        <bpmn:inputSet id="C2_Economics_InputSet">
+          <bpmn:dataInputRefs>C2_Economics_Input_1</bpmn:dataInputRefs>
+        </bpmn:inputSet>
+        <bpmn:outputSet id="C2_Economics_OutputSet">
+          <bpmn:dataOutputRefs>C2_Economics_Output_1</bpmn:dataOutputRefs>
+        </bpmn:outputSet>
+      </bpmn:ioSpecification>
+      <bpmn:dataInputAssociation id="C2_Economics_Read_1">
+        <bpmn:sourceRef>C2_Package</bpmn:sourceRef>
+        <bpmn:targetRef>C2_Economics_Input_1</bpmn:targetRef>
+      </bpmn:dataInputAssociation>
+      <bpmn:dataOutputAssociation id="C2_Economics_Write_1">
+        <bpmn:sourceRef>C2_Economics_Output_1</bpmn:sourceRef>
+        <bpmn:targetRef>C2_EconomicReport</bpmn:targetRef>
+      </bpmn:dataOutputAssociation>
+    </bpmn:task>
+    <bpmn:task id="C2_Technology" name="Проверить техническую осуществимость предложенного решения и ограничения его применения">
+      <bpmn:incoming>C2_F05</bpmn:incoming>
+      <bpmn:outgoing>C2_F09</bpmn:outgoing>
+      <bpmn:ioSpecification id="C2_Technology_IO">
+        <bpmn:dataInput id="C2_Technology_Input_1" name="Прочитать Package"/>
+        <bpmn:dataOutput id="C2_Technology_Output_1" name="Записать TechnicalReport"/>
+        <bpmn:inputSet id="C2_Technology_InputSet">
+          <bpmn:dataInputRefs>C2_Technology_Input_1</bpmn:dataInputRefs>
+        </bpmn:inputSet>
+        <bpmn:outputSet id="C2_Technology_OutputSet">
+          <bpmn:dataOutputRefs>C2_Technology_Output_1</bpmn:dataOutputRefs>
+        </bpmn:outputSet>
+      </bpmn:ioSpecification>
+      <bpmn:dataInputAssociation id="C2_Technology_Read_1">
+        <bpmn:sourceRef>C2_Package</bpmn:sourceRef>
+        <bpmn:targetRef>C2_Technology_Input_1</bpmn:targetRef>
+      </bpmn:dataInputAssociation>
+      <bpmn:dataOutputAssociation id="C2_Technology_Write_1">
+        <bpmn:sourceRef>C2_Technology_Output_1</bpmn:sourceRef>
+        <bpmn:targetRef>C2_TechnicalReport</bpmn:targetRef>
+      </bpmn:dataOutputAssociation>
+    </bpmn:task>
+    <bpmn:task id="C2_Operations" name="Проверить последовательность выполнения работ и достаточность предусмотренных ресурсов">
+      <bpmn:incoming>C2_F06</bpmn:incoming>
+      <bpmn:outgoing>C2_F10</bpmn:outgoing>
+      <bpmn:ioSpecification id="C2_Operations_IO">
+        <bpmn:dataInput id="C2_Operations_Input_1" name="Прочитать Package"/>
+        <bpmn:dataOutput id="C2_Operations_Output_1" name="Записать OperationalReport"/>
+        <bpmn:inputSet id="C2_Operations_InputSet">
+          <bpmn:dataInputRefs>C2_Operations_Input_1</bpmn:dataInputRefs>
+        </bpmn:inputSet>
+        <bpmn:outputSet id="C2_Operations_OutputSet">
+          <bpmn:dataOutputRefs>C2_Operations_Output_1</bpmn:dataOutputRefs>
+        </bpmn:outputSet>
+      </bpmn:ioSpecification>
+      <bpmn:dataInputAssociation id="C2_Operations_Read_1">
+        <bpmn:sourceRef>C2_Package</bpmn:sourceRef>
+        <bpmn:targetRef>C2_Operations_Input_1</bpmn:targetRef>
+      </bpmn:dataInputAssociation>
+      <bpmn:dataOutputAssociation id="C2_Operations_Write_1">
+        <bpmn:sourceRef>C2_Operations_Output_1</bpmn:sourceRef>
+        <bpmn:targetRef>C2_OperationalReport</bpmn:targetRef>
+      </bpmn:dataOutputAssociation>
+    </bpmn:task>
+    <bpmn:task id="C2_Quality" name="Проверить критерии качества результата и способы подтверждения их выполнения">
+      <bpmn:incoming>C2_F07</bpmn:incoming>
+      <bpmn:outgoing>C2_F11</bpmn:outgoing>
+      <bpmn:ioSpecification id="C2_Quality_IO">
+        <bpmn:dataInput id="C2_Quality_Input_1" name="Прочитать Package"/>
+        <bpmn:dataOutput id="C2_Quality_Output_1" name="Записать QualityReport"/>
+        <bpmn:inputSet id="C2_Quality_InputSet">
+          <bpmn:dataInputRefs>C2_Quality_Input_1</bpmn:dataInputRefs>
+        </bpmn:inputSet>
+        <bpmn:outputSet id="C2_Quality_OutputSet">
+          <bpmn:dataOutputRefs>C2_Quality_Output_1</bpmn:dataOutputRefs>
+        </bpmn:outputSet>
+      </bpmn:ioSpecification>
+      <bpmn:dataInputAssociation id="C2_Quality_Read_1">
+        <bpmn:sourceRef>C2_Package</bpmn:sourceRef>
+        <bpmn:targetRef>C2_Quality_Input_1</bpmn:targetRef>
+      </bpmn:dataInputAssociation>
+      <bpmn:dataOutputAssociation id="C2_Quality_Write_1">
+        <bpmn:sourceRef>C2_Quality_Output_1</bpmn:sourceRef>
+        <bpmn:targetRef>C2_QualityReport</bpmn:targetRef>
+      </bpmn:dataOutputAssociation>
+    </bpmn:task>
+    <bpmn:inclusiveGateway id="C2_Join" name="Все запущенные проверки завершены?" gatewayDirection="Converging">
+      <bpmn:incoming>C2_F08</bpmn:incoming>
+      <bpmn:incoming>C2_F09</bpmn:incoming>
+      <bpmn:incoming>C2_F10</bpmn:incoming>
+      <bpmn:incoming>C2_F11</bpmn:incoming>
+      <bpmn:outgoing>C2_F12</bpmn:outgoing>
+    </bpmn:inclusiveGateway>
+    <bpmn:task id="C2_Joint" name="Провести совместный контроль заключений по всем запущенным направлениям и свести замечания">
+      <bpmn:incoming>C2_F12</bpmn:incoming>
+      <bpmn:outgoing>C2_F13</bpmn:outgoing>
+      <bpmn:ioSpecification id="C2_Joint_IO">
+        <bpmn:dataInput id="C2_Joint_Input_1" name="Прочитать EconomicReport"/>
+        <bpmn:dataInput id="C2_Joint_Input_2" name="Прочитать TechnicalReport"/>
+        <bpmn:dataInput id="C2_Joint_Input_3" name="Прочитать OperationalReport"/>
+        <bpmn:dataInput id="C2_Joint_Input_4" name="Прочитать QualityReport"/>
+        <bpmn:dataOutput id="C2_Joint_Output_1" name="Записать Summary"/>
+        <bpmn:inputSet id="C2_Joint_InputSet">
+          <bpmn:dataInputRefs>C2_Joint_Input_1</bpmn:dataInputRefs>
+          <bpmn:dataInputRefs>C2_Joint_Input_2</bpmn:dataInputRefs>
+          <bpmn:dataInputRefs>C2_Joint_Input_3</bpmn:dataInputRefs>
+          <bpmn:dataInputRefs>C2_Joint_Input_4</bpmn:dataInputRefs>
+          <bpmn:optionalInputRefs>C2_Joint_Input_1</bpmn:optionalInputRefs>
+          <bpmn:optionalInputRefs>C2_Joint_Input_2</bpmn:optionalInputRefs>
+          <bpmn:optionalInputRefs>C2_Joint_Input_3</bpmn:optionalInputRefs>
+          <bpmn:optionalInputRefs>C2_Joint_Input_4</bpmn:optionalInputRefs>
+        </bpmn:inputSet>
+        <bpmn:outputSet id="C2_Joint_OutputSet">
+          <bpmn:dataOutputRefs>C2_Joint_Output_1</bpmn:dataOutputRefs>
+        </bpmn:outputSet>
+      </bpmn:ioSpecification>
+      <bpmn:dataInputAssociation id="C2_Joint_Read_1">
+        <bpmn:sourceRef>C2_EconomicReport</bpmn:sourceRef>
+        <bpmn:targetRef>C2_Joint_Input_1</bpmn:targetRef>
+      </bpmn:dataInputAssociation>
+      <bpmn:dataInputAssociation id="C2_Joint_Read_2">
+        <bpmn:sourceRef>C2_TechnicalReport</bpmn:sourceRef>
+        <bpmn:targetRef>C2_Joint_Input_2</bpmn:targetRef>
+      </bpmn:dataInputAssociation>
+      <bpmn:dataInputAssociation id="C2_Joint_Read_3">
+        <bpmn:sourceRef>C2_OperationalReport</bpmn:sourceRef>
+        <bpmn:targetRef>C2_Joint_Input_3</bpmn:targetRef>
+      </bpmn:dataInputAssociation>
+      <bpmn:dataInputAssociation id="C2_Joint_Read_4">
+        <bpmn:sourceRef>C2_QualityReport</bpmn:sourceRef>
+        <bpmn:targetRef>C2_Joint_Input_4</bpmn:targetRef>
+      </bpmn:dataInputAssociation>
+      <bpmn:dataOutputAssociation id="C2_Joint_Write_1">
+        <bpmn:sourceRef>C2_Joint_Output_1</bpmn:sourceRef>
+        <bpmn:targetRef>C2_Summary</bpmn:targetRef>
+      </bpmn:dataOutputAssociation>
+    </bpmn:task>
+    <bpmn:exclusiveGateway id="C2_Issues" name="Есть замечания к комплекту материалов?" gatewayDirection="Diverging">
+      <bpmn:incoming>C2_F13</bpmn:incoming>
+      <bpmn:outgoing>C2_F14</bpmn:outgoing>
+      <bpmn:outgoing>C2_F15</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:task id="C2_Revise" name="Доработать комплект материалов по сводным замечаниям и направить на повторную проверку">
+      <bpmn:incoming>C2_F14</bpmn:incoming>
+      <bpmn:outgoing>C2_F16</bpmn:outgoing>
+      <bpmn:ioSpecification id="C2_Revise_IO">
+        <bpmn:dataInput id="C2_Revise_Input_1" name="Прочитать Package"/>
+        <bpmn:dataInput id="C2_Revise_Input_2" name="Прочитать Summary"/>
+        <bpmn:dataOutput id="C2_Revise_Output_1" name="Записать Package"/>
+        <bpmn:inputSet id="C2_Revise_InputSet">
+          <bpmn:dataInputRefs>C2_Revise_Input_1</bpmn:dataInputRefs>
+          <bpmn:dataInputRefs>C2_Revise_Input_2</bpmn:dataInputRefs>
+        </bpmn:inputSet>
+        <bpmn:outputSet id="C2_Revise_OutputSet">
+          <bpmn:dataOutputRefs>C2_Revise_Output_1</bpmn:dataOutputRefs>
+        </bpmn:outputSet>
+      </bpmn:ioSpecification>
+      <bpmn:dataInputAssociation id="C2_Revise_Read_1">
+        <bpmn:sourceRef>C2_Package</bpmn:sourceRef>
+        <bpmn:targetRef>C2_Revise_Input_1</bpmn:targetRef>
+      </bpmn:dataInputAssociation>
+      <bpmn:dataInputAssociation id="C2_Revise_Read_2">
+        <bpmn:sourceRef>C2_Summary</bpmn:sourceRef>
+        <bpmn:targetRef>C2_Revise_Input_2</bpmn:targetRef>
+      </bpmn:dataInputAssociation>
+      <bpmn:dataOutputAssociation id="C2_Revise_Write_1">
+        <bpmn:sourceRef>C2_Revise_Output_1</bpmn:sourceRef>
+        <bpmn:targetRef>C2_Package</bpmn:targetRef>
+      </bpmn:dataOutputAssociation>
+    </bpmn:task>
+    <bpmn:task id="C2_Register" name="Зафиксировать положительный результат совместного контроля комплекта материалов">
+      <bpmn:incoming>C2_F15</bpmn:incoming>
+      <bpmn:outgoing>C2_F17</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:endEvent id="C2_End" name="Комплект проверен, замечания отсутствуют">
+      <bpmn:incoming>C2_F17</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="C2_F01" sourceRef="C2_Start" targetRef="C2_Prepare"/>
+    <bpmn:sequenceFlow id="C2_F02" sourceRef="C2_Prepare" targetRef="C2_MergeRound"/>
+    <bpmn:sequenceFlow id="C2_F03" sourceRef="C2_MergeRound" targetRef="C2_Fork"/>
+    <bpmn:sequenceFlow id="C2_F04" sourceRef="C2_Fork" targetRef="C2_Economics" name="Требуются расчёты">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">= economicsRequired = true</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="C2_F05" sourceRef="C2_Fork" targetRef="C2_Technology" name="Требуется техническая проверка">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">= technologyRequired = true</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="C2_F06" sourceRef="C2_Fork" targetRef="C2_Operations" name="Требуется проверка исполнения">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">= operationsRequired = true</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="C2_F07" sourceRef="C2_Fork" targetRef="C2_Quality" name="Требуется проверка качества">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">= qualityRequired = true</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="C2_F08" sourceRef="C2_Economics" targetRef="C2_Join"/>
+    <bpmn:sequenceFlow id="C2_F09" sourceRef="C2_Technology" targetRef="C2_Join"/>
+    <bpmn:sequenceFlow id="C2_F10" sourceRef="C2_Operations" targetRef="C2_Join"/>
+    <bpmn:sequenceFlow id="C2_F11" sourceRef="C2_Quality" targetRef="C2_Join"/>
+    <bpmn:sequenceFlow id="C2_F12" sourceRef="C2_Join" targetRef="C2_Joint"/>
+    <bpmn:sequenceFlow id="C2_F13" sourceRef="C2_Joint" targetRef="C2_Issues"/>
+    <bpmn:sequenceFlow id="C2_F14" sourceRef="C2_Issues" targetRef="C2_Revise" name="Да">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">= hasIssues = true</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="C2_F15" sourceRef="C2_Issues" targetRef="C2_Register" name="Нет">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">= hasIssues = false</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="C2_F16" sourceRef="C2_Revise" targetRef="C2_MergeRound"/>
+    <bpmn:sequenceFlow id="C2_F17" sourceRef="C2_Register" targetRef="C2_End"/>
+    <bpmn:dataObject id="C2_Package_Object"/>
+    <bpmn:dataObjectReference id="C2_Package" name="Комплект материалов для независимых проверок учебного решения" dataObjectRef="C2_Package_Object"/>
+    <bpmn:dataObject id="C2_EconomicReport_Object"/>
+    <bpmn:dataObjectReference id="C2_EconomicReport" name="Заключение о расчётах, затратах и ожидаемом результате" dataObjectRef="C2_EconomicReport_Object"/>
+    <bpmn:dataObject id="C2_TechnicalReport_Object"/>
+    <bpmn:dataObjectReference id="C2_TechnicalReport" name="Заключение о технической осуществимости и ограничениях применения" dataObjectRef="C2_TechnicalReport_Object"/>
+    <bpmn:dataObject id="C2_OperationalReport_Object"/>
+    <bpmn:dataObjectReference id="C2_OperationalReport" name="Заключение о порядке выполнения и достаточности ресурсов" dataObjectRef="C2_OperationalReport_Object"/>
+    <bpmn:dataObject id="C2_QualityReport_Object"/>
+    <bpmn:dataObjectReference id="C2_QualityReport" name="Заключение о критериях качества и способах их подтверждения" dataObjectRef="C2_QualityReport_Object"/>
+    <bpmn:dataObject id="C2_Summary_Object"/>
+    <bpmn:dataObjectReference id="C2_Summary" name="Сводное заключение совместного контроля с перечнем замечаний" dataObjectRef="C2_Summary_Object"/>
+  </bpmn:process>
+  <bpmn:collaboration id="C2_Collaboration">
+    <bpmn:participant id="C2_Pool" name="Независимые проверки учебного пакета" processRef="C2_Process"/>
+  </bpmn:collaboration>
+</bpmn:definitions>

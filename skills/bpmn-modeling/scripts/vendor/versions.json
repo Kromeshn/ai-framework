@@ -1,0 +1,15 @@
+{
+  "layout": "2.0.0-alpha.2",
+  "viewer": "18.6.3",
+  "esbuild": "0.25.12",
+  "patches": {
+    "const DEFAULT_TASK_HEIGHT = 80;": "const DEFAULT_TASK_HEIGHT = 104;",
+    "const DEFAULT_TASK_WIDTH = 100;": "const DEFAULT_TASK_WIDTH = 220;",
+    "const EXTERNAL_LABEL_WIDTH = 90;": "const EXTERNAL_LABEL_WIDTH = 150;",
+    "const HORIZONTAL_GAP = 100;": "const HORIZONTAL_GAP = 120;"
+  },
+  "sha256": {
+    "layout-engine.cjs": "62acb79e28e8ac429aabd9bbb280a4d82848bd50905176062f975403bf53b707",
+    "bpmn-viewer.js": "d8742af8cc3859b7c241015df2ff776e13ae7f57638297867ae7d7a6d96451cd"
+  }
+}

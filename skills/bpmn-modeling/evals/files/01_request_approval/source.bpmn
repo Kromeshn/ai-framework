@@ -1,0 +1,160 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="C1_Definitions" targetNamespace="https://example.org/bpmn-layout-fixtures/c1" name="Согласовать заявку с возвратом на исправление" modeler:executionPlatform="Camunda Cloud">
+  <bpmn:process id="C1_Process" name="Согласовать заявку на учебное изменение" isExecutable="false">
+    <bpmn:documentation>Синтетический описательный процесс. Отрицательный результат проверки возвращает заявку на исправление; отмена и окончательный отказ находятся вне границ этого кейса.</bpmn:documentation>
+    <bpmn:laneSet id="C1_LaneSet">
+      <bpmn:lane id="C1_Lane_Applicant" name="Заявитель">
+        <bpmn:flowNodeRef>C1_Start</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>C1_Prepare</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>C1_Correct</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="C1_Lane_Coordinator" name="Координатор">
+        <bpmn:flowNodeRef>C1_MergeReview</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>C1_Check</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>C1_Complete</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>C1_Register</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>C1_End</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="C1_Lane_Approver" name="Согласующий">
+        <bpmn:flowNodeRef>C1_Assess</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>C1_Approved</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>C1_MergeCorrection</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="C1_Start" name="Возникла потребность в учебном изменении">
+      <bpmn:outgoing>C1_F01</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:task id="C1_Prepare" name="Подготовить заявку с описанием цели, ожидаемого результата и необходимыми приложениями">
+      <bpmn:incoming>C1_F01</bpmn:incoming>
+      <bpmn:outgoing>C1_F02</bpmn:outgoing>
+      <bpmn:ioSpecification id="C1_Prepare_IO">
+        <bpmn:dataOutput id="C1_Prepare_Output_1" name="Записать Request"/>
+        <bpmn:inputSet id="C1_Prepare_InputSet"/>
+        <bpmn:outputSet id="C1_Prepare_OutputSet">
+          <bpmn:dataOutputRefs>C1_Prepare_Output_1</bpmn:dataOutputRefs>
+        </bpmn:outputSet>
+      </bpmn:ioSpecification>
+      <bpmn:dataOutputAssociation id="C1_Prepare_Write_1">
+        <bpmn:sourceRef>C1_Prepare_Output_1</bpmn:sourceRef>
+        <bpmn:targetRef>C1_Request</bpmn:targetRef>
+      </bpmn:dataOutputAssociation>
+    </bpmn:task>
+    <bpmn:exclusiveGateway id="C1_MergeReview" name="Заявка подготовлена для проверки?" gatewayDirection="Converging">
+      <bpmn:incoming>C1_F02</bpmn:incoming>
+      <bpmn:incoming>C1_F11</bpmn:incoming>
+      <bpmn:outgoing>C1_F03</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:task id="C1_Check" name="Проверить полноту сведений и соответствие приложений заявленному результату">
+      <bpmn:incoming>C1_F03</bpmn:incoming>
+      <bpmn:outgoing>C1_F04</bpmn:outgoing>
+      <bpmn:ioSpecification id="C1_Check_IO">
+        <bpmn:dataInput id="C1_Check_Input_1" name="Прочитать Request"/>
+        <bpmn:inputSet id="C1_Check_InputSet">
+          <bpmn:dataInputRefs>C1_Check_Input_1</bpmn:dataInputRefs>
+        </bpmn:inputSet>
+        <bpmn:outputSet id="C1_Check_OutputSet"/>
+      </bpmn:ioSpecification>
+      <bpmn:dataInputAssociation id="C1_Check_Read_1">
+        <bpmn:sourceRef>C1_Request</bpmn:sourceRef>
+        <bpmn:targetRef>C1_Check_Input_1</bpmn:targetRef>
+      </bpmn:dataInputAssociation>
+    </bpmn:task>
+    <bpmn:exclusiveGateway id="C1_Complete" name="Сведения и приложения полны?" gatewayDirection="Diverging">
+      <bpmn:incoming>C1_F04</bpmn:incoming>
+      <bpmn:outgoing>C1_F05</bpmn:outgoing>
+      <bpmn:outgoing>C1_F06</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:task id="C1_Assess" name="Оценить обоснованность учебного изменения и возможность достижения заявленного результата">
+      <bpmn:incoming>C1_F05</bpmn:incoming>
+      <bpmn:outgoing>C1_F07</bpmn:outgoing>
+      <bpmn:ioSpecification id="C1_Assess_IO">
+        <bpmn:dataInput id="C1_Assess_Input_1" name="Прочитать Request"/>
+        <bpmn:inputSet id="C1_Assess_InputSet">
+          <bpmn:dataInputRefs>C1_Assess_Input_1</bpmn:dataInputRefs>
+        </bpmn:inputSet>
+        <bpmn:outputSet id="C1_Assess_OutputSet"/>
+      </bpmn:ioSpecification>
+      <bpmn:dataInputAssociation id="C1_Assess_Read_1">
+        <bpmn:sourceRef>C1_Request</bpmn:sourceRef>
+        <bpmn:targetRef>C1_Assess_Input_1</bpmn:targetRef>
+      </bpmn:dataInputAssociation>
+    </bpmn:task>
+    <bpmn:exclusiveGateway id="C1_Approved" name="Заявка согласована?" gatewayDirection="Diverging">
+      <bpmn:incoming>C1_F07</bpmn:incoming>
+      <bpmn:outgoing>C1_F08</bpmn:outgoing>
+      <bpmn:outgoing>C1_F09</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:exclusiveGateway id="C1_MergeCorrection" name="Получены замечания к заявке?" gatewayDirection="Converging">
+      <bpmn:incoming>C1_F06</bpmn:incoming>
+      <bpmn:incoming>C1_F09</bpmn:incoming>
+      <bpmn:outgoing>C1_F10</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:task id="C1_Correct" name="Исправить заявку и приложения по замечаниям координатора или согласующего">
+      <bpmn:incoming>C1_F10</bpmn:incoming>
+      <bpmn:outgoing>C1_F11</bpmn:outgoing>
+      <bpmn:ioSpecification id="C1_Correct_IO">
+        <bpmn:dataInput id="C1_Correct_Input_1" name="Прочитать Request"/>
+        <bpmn:dataOutput id="C1_Correct_Output_1" name="Записать Request"/>
+        <bpmn:inputSet id="C1_Correct_InputSet">
+          <bpmn:dataInputRefs>C1_Correct_Input_1</bpmn:dataInputRefs>
+        </bpmn:inputSet>
+        <bpmn:outputSet id="C1_Correct_OutputSet">
+          <bpmn:dataOutputRefs>C1_Correct_Output_1</bpmn:dataOutputRefs>
+        </bpmn:outputSet>
+      </bpmn:ioSpecification>
+      <bpmn:dataInputAssociation id="C1_Correct_Read_1">
+        <bpmn:sourceRef>C1_Request</bpmn:sourceRef>
+        <bpmn:targetRef>C1_Correct_Input_1</bpmn:targetRef>
+      </bpmn:dataInputAssociation>
+      <bpmn:dataOutputAssociation id="C1_Correct_Write_1">
+        <bpmn:sourceRef>C1_Correct_Output_1</bpmn:sourceRef>
+        <bpmn:targetRef>C1_Request</bpmn:targetRef>
+      </bpmn:dataOutputAssociation>
+    </bpmn:task>
+    <bpmn:task id="C1_Register" name="Зафиксировать согласование и сохранить протокол с итоговыми условиями выполнения">
+      <bpmn:incoming>C1_F08</bpmn:incoming>
+      <bpmn:outgoing>C1_F12</bpmn:outgoing>
+      <bpmn:ioSpecification id="C1_Register_IO">
+        <bpmn:dataOutput id="C1_Register_Output_1" name="Записать Protocol"/>
+        <bpmn:inputSet id="C1_Register_InputSet"/>
+        <bpmn:outputSet id="C1_Register_OutputSet">
+          <bpmn:dataOutputRefs>C1_Register_Output_1</bpmn:dataOutputRefs>
+        </bpmn:outputSet>
+      </bpmn:ioSpecification>
+      <bpmn:dataOutputAssociation id="C1_Register_Write_1">
+        <bpmn:sourceRef>C1_Register_Output_1</bpmn:sourceRef>
+        <bpmn:targetRef>C1_Protocol</bpmn:targetRef>
+      </bpmn:dataOutputAssociation>
+    </bpmn:task>
+    <bpmn:endEvent id="C1_End" name="Заявка согласована, протокол сохранён">
+      <bpmn:incoming>C1_F12</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="C1_F01" sourceRef="C1_Start" targetRef="C1_Prepare"/>
+    <bpmn:sequenceFlow id="C1_F02" sourceRef="C1_Prepare" targetRef="C1_MergeReview"/>
+    <bpmn:sequenceFlow id="C1_F03" sourceRef="C1_MergeReview" targetRef="C1_Check"/>
+    <bpmn:sequenceFlow id="C1_F04" sourceRef="C1_Check" targetRef="C1_Complete"/>
+    <bpmn:sequenceFlow id="C1_F05" sourceRef="C1_Complete" targetRef="C1_Assess" name="Да">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">= complete = true</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="C1_F06" sourceRef="C1_Complete" targetRef="C1_MergeCorrection" name="Нет">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">= complete = false</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="C1_F07" sourceRef="C1_Assess" targetRef="C1_Approved"/>
+    <bpmn:sequenceFlow id="C1_F08" sourceRef="C1_Approved" targetRef="C1_Register" name="Да">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">= approved = true</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="C1_F09" sourceRef="C1_Approved" targetRef="C1_MergeCorrection" name="Нет">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">= approved = false</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="C1_F10" sourceRef="C1_MergeCorrection" targetRef="C1_Correct"/>
+    <bpmn:sequenceFlow id="C1_F11" sourceRef="C1_Correct" targetRef="C1_MergeReview"/>
+    <bpmn:sequenceFlow id="C1_F12" sourceRef="C1_Register" targetRef="C1_End"/>
+    <bpmn:dataObject id="C1_Request_Object"/>
+    <bpmn:dataObjectReference id="C1_Request" name="Заявка на учебное изменение с обоснованием и необходимыми приложениями" dataObjectRef="C1_Request_Object"/>
+    <bpmn:dataObject id="C1_Protocol_Object"/>
+    <bpmn:dataObjectReference id="C1_Protocol" name="Протокол согласования заявки с итоговыми условиями выполнения" dataObjectRef="C1_Protocol_Object"/>
+  </bpmn:process>
+  <bpmn:collaboration id="C1_Collaboration">
+    <bpmn:participant id="C1_Pool" name="Согласование учебной заявки" processRef="C1_Process"/>
+  </bpmn:collaboration>
+</bpmn:definitions>
