@@ -1,0 +1,4 @@
+interface:
+  display_name: "STE Focus"
+  short_description: "Ответ на уровне вопроса простым языком"
+  default_prompt: "Используй $ste-focus 80: ответь на уровне вопроса и убери лишнее."
