@@ -1,6 +1,6 @@
 ---
 name: lossless-doc-compress
-description: Use when asked to compress, tighten, shorten, condense, or de-slop a design doc, PRD, RFC, architecture note, or similar prose "without losing information". Removes only provable redundancy — filler, hedging, LLM-slop, restated content — never a fact, number, decision, or caveat, and flags every judgment call for the author. Returns a compressed document, a categorized removal log, and a shareable scorecard.
+description: Use when asked to compress, tighten, shorten, condense, or de-slop a design doc, PRD, RFC, architecture note, or similar prose "without losing information". Removes only provable redundancy — filler, hedging, LLM-slop, restated content — never a fact, number, decision, or caveat, and flags every judgment call for the author. Returns a compressed document, a categorized removal log, and a shareable scorecard. Also use before every edit of an artifact (docs, md, plans, diagrams with text) — run the new text through this skill and write only the compressed version.
 metadata:
   version: "0.1.0"
   scope: design-doc-lossless-compression
