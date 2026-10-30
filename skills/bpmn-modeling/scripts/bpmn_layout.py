@@ -221,6 +221,14 @@ def main():
         if audit.get('status') != 'pass':
             detail = ' The visual graph is nonplanar: a single-plane zero-crossing drawing is impossible without changing representation.' if report.get('topology', {}).get('status') == 'nonplanar' else ''
             raise ValueError('Geometry audit requires correction; inspect candidate and preview in report directory.' + detail)
+        readability_path = report_dir/'readability.json'
+        readability_run = subprocess.run([sys.executable, str(HERE/'readability_audit.py'), str(candidate), '--output', str(readability_path)],
+                       cwd=HERE, capture_output=True, text=True, encoding='utf-8')
+        if readability_run.returncode not in (0, 1):
+            raise ValueError('Readability audit failed; output rejected')
+        report['readability'] = json.loads(readability_path.read_text(encoding='utf-8'))
+        if not report['readability']['pass']:
+            raise ValueError('Readability audit requires correction (merges, backward flows, duplicates, lanes, colours); see readability.json in report directory.')
         render = json.loads((preview/'report.json').read_text(encoding='utf-8'))
         if render.get('warnings'):
             raise ValueError('Renderer reported warnings; inspect report before accepting')

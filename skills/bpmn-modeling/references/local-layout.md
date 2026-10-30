@@ -25,7 +25,10 @@
 ```
 node <skill>/scripts/bpmn_render.cjs <model.bpmn> --out-dir <preview-dir>
 python <skill>/scripts/geometry_audit.py <model.bpmn> --render-report <preview-dir>/report.json --output <audit.json>
+python <skill>/scripts/readability_audit.py <model.bpmn> --output <readability.json>
 ```
+
+Конвейер `bpmn_layout.py` запускает оба аудита сам и не записывает результат, пока в `readability.json` есть ошибки. Категории `info` (например, `child_outcomes_exceed_parent`) не блокируют: это напоминание сверить исходы подпроцесса с родителем.
 
 `status: incomplete` означает отсутствие измеренных подписей, а не успешную проверку. Старый render отвергается по SHA-256. Снимки создаются кодом в отдельном headless процессе; управление пользовательским браузером или Computer Use не требуется. Встроенный watermark bpmn.io сохраняется согласно лицензии.
 
