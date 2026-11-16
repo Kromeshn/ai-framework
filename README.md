@@ -13,6 +13,8 @@
 ai-framework/
 ├── skills/
 │   └── <name>/SKILL.md      # Источник правды для скилла
+├── global/
+│   └── AGENTS.md            # Глобальные префы агента → ~/.codex/AGENTS.md, ~/.qoder/AGENTS.md
 ├── templates/
 │   ├── CLAUDE.md            # Рыба проектного CLAUDE.md
 │   ├── AGENTS.md            # Рыба, копия CLAUDE.md
